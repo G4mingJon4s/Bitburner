@@ -17,5 +17,5 @@ import {getAllServers} from './contractFinder';
             ns.exec('sharing.js', name, threads);
     }
     let power = 1 + Math.log(sum) / 25;
-    ns.tprint(`Total threads: ${sum}, resulting in a power of ${power}%`)
+    ns.tprint(`Total threads: ${sum}, resulting in a power of ${power.toFixed(2)}%`)
 }

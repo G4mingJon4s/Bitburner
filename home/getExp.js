@@ -23,14 +23,15 @@ export async function main(ns) {
     for (let count = 0; count < limit; count++) {
         let pid = ns.run('c-weaken.js', tCount, target, Date.now());
         pids.push(pid);
-        await ns.sleep(10);
+        await ns.sleep(20);
     }
     while (true) {
         for(let pid of pids) {
             if (!ns.isRunning(pid)) {
-                pids[pids.indexOf(pid)] = await ns.run('c-weaken.js', tCount, target, Date.now());
+                pids[pids.indexOf(pid)] = ns.run('c-weaken.js', tCount, target, Date.now());
             }
+            await ns.sleep(5);
         }
-        await ns.sleep(2);
+        await ns.sleep(5);
     }
 }

@@ -149,7 +149,7 @@ function makeLine(lengths, sep, data) {
         let line = sep;
         for (let j = 0; j < row.length; j++) {
             let value = row[j];
-            value = value.padEnd(lengths[j]);
+            value = value.padEnd(lengths[j], ' ');
             line += value;
             line += sep;
         }
@@ -169,9 +169,9 @@ function makeLine(lengths, sep, data) {
  */
 function makeSeperator(lengths, prefix, middle, suffix, line) {
     let head = prefix;
-    for (const length of lengths) {
-        head = head.padEnd(head.length + length, line);
-        if (lengths.indexOf(length) >= lengths.length - 1) {
+    for (const index in lengths) {
+        head += String().padEnd(lengths[index], line);
+        if (index >= lengths.length - 1) {
             head += suffix;
             break;
         }

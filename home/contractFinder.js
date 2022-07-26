@@ -4,6 +4,7 @@
 export async function main(ns) {
     let servers = await getAllServers(ns);
     let result = getAllContracts(ns, servers, true);
+    if (result.length == 0) return ns.tprint('ERROR: No contracts found!');
     let rows = table(result, true);
     for (const row of rows) {
         ns.tprint(row);

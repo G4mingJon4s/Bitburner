@@ -13,6 +13,11 @@ export function RLEEncode(string) {
             continue;
         }
         count++;
+        if (i + 1 >= arr.length) {
+            out += count;
+            out += char;
+            break;
+        }
     }
     return out;
 }

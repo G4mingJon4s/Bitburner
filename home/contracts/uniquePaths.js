@@ -1,6 +1,6 @@
 export function sumPathsI(x, y) {
-    let val = fact(x+y-2);
-    return val / (fact(x-1) * fact(y-1));
+    let val = fact(x + y - 2);
+    return val / (fact(x - 1) * fact(y - 1));
 }
 
 export function fact(n) {
@@ -8,42 +8,38 @@ export function fact(n) {
     return n * fact(n - 1);
 }
 
-export function sumPathsII(ns, input) {
-    let pos = {x: 0, y: 0};
+export function sumPathsII(input) {
+    let pos = {
+        x: 0,
+        y: 0
+    };
 
-    function perm(pos, grid, paths = [], path = []) {
-        path.push(pos);
-        ns.print(JSON.stringify(pos));
-        if (pos.x === grid[pos.y].length - 1 && pos.y === grid.length - 1) {
-            return path;
-        }
-        if (canMoveRight(pos, grid)) {
-            let result = perm({x: pos.x + 1,y: pos.y}, grid, paths, path);
-            ns.print(result, 1);
-            if (result.length != 0) paths.push(result);
-        }
-        if (canMoveDown(pos, grid)) {
-            let result = perm({x: pos.x,y: pos.y + 1}, grid, paths, path);
-            ns.print(result, 2);
-            if (result.length != 0) paths.push(result);
-        }
+    function perm(pos, grid, paths = 0) {
+        if (pos.x === grid[pos.y].length - 1 && pos.y === grid.length - 1) return 1;
+        if (canMoveRight(pos, grid)) paths += perm({
+            x: pos.x + 1,
+            y: pos.y
+        }, grid);
+        if (canMoveDown(pos, grid)) paths += perm({
+            x: pos.x,
+            y: pos.y + 1
+        }, grid);
         return paths;
     }
     let paths = perm(pos, input);
-    ns.print(paths);
-    return paths.length;
+    return paths;
 }
 
 function canMoveRight(pos, grid) {
-    let colM  = grid[pos.y].length - 1;
-    if (pos.x + 1 >= colM) return false;
+    let colM = grid[pos.y].length - 1;
+    if (pos.x + 1 > colM) return false;
     let right = grid[pos.y][pos.x + 1];
     return right === 0;
 }
 
 function canMoveDown(pos, grid) {
     let rowM = grid.length - 1;
-    if (pos.y + 1 >= rowM) return false;
+    if (pos.y + 1 > rowM) return false;
     let down = grid[pos.y + 1][pos.x];
     return down === 0;
 }
@@ -53,9 +49,72 @@ function canMoveDown(pos, grid) {
  * @param {import('../../.vscode/NetscriptDefinitions').NS} ns
  */
 export async function main(ns) {
-    ns.disableLog('ALL'); ns.clearLog(); ns.tail();
-    let tests = [{input: [[0, 0, 0],[0, 0, 0],[1, 0, 0],],output: 5,},{input: [[0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 1, 0, 0, 0],[0, 0, 0, 0, 0, 1, 0, 0],[0, 0, 0, 0, 0, 0, 1, 0],[0, 0, 0, 1, 0, 1, 0, 0],[0, 0, 0, 0, 0, 0, 0, 1],[0, 0, 0, 0, 0, 0, 0, 0],],output: 202,},{input: [[0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[0, 0],[0, 1],[0, 0],[0, 0],[1, 0],[0, 0],],output: 2,},{input: [[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 1, 0, 0, 0, 0, 1, 0],[1, 1, 0, 1, 1, 0, 1, 0, 0],[0, 0, 0, 0, 0, 0, 0, 1, 1],[0, 0, 0, 0, 1, 0, 0, 0, 0],[0, 0, 0, 0, 1, 0, 0, 0, 1],[0, 0, 0, 0, 1, 0, 0, 0, 0],[0, 1, 0, 0, 1, 0, 0, 1, 0],[0, 0, 0, 0, 0, 0, 0, 1, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0],],output: 240,},{input: [[0, 0, 1, 0, 0, 0, 1, 0, 0, 0],[1, 0, 0, 0, 0, 0, 0, 1, 0, 0],[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],[1, 1, 0, 0, 0, 0, 0, 0, 0, 0],[0, 0, 0, 0, 0, 0, 0, 1, 0, 0],[1, 0, 0, 0, 0, 0, 0, 1, 0, 0],],output: 102,},];
-    let input = tests[0].input;
-    let output = tests[0].output;
-    if (output != sumPathsII(ns, input)) ns.print('FAILED');
+    ns.disableLog('ALL');
+    ns.clearLog();
+    ns.tail();
+    let tests = [{
+        input: [
+            [0, 0, 0],
+            [0, 0, 0],
+            [1, 0, 0],
+        ],
+        output: 5,
+    }, {
+        input: [
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        output: 202,
+    }, {
+        input: [
+            [0, 0],
+            [0, 0],
+            [0, 1],
+            [0, 0],
+            [0, 0],
+            [0, 0],
+            [0, 1],
+            [0, 0],
+            [0, 0],
+            [1, 0],
+            [0, 0],
+        ],
+        output: 2,
+    }, {
+        input: [
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 1, 0, 0, 0, 0, 1, 0],
+            [1, 1, 0, 1, 1, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0, 0, 0, 1],
+            [0, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 1, 0, 0, 1, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0],
+        ],
+        output: 240,
+    }, {
+        input: [
+            [0, 0, 1, 0, 0, 0, 1, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [1, 1, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 0],
+        ],
+        output: 102,
+    }, ];
+    for (const data of tests) {
+        let input = data.input;
+        let output = data.output;
+        if (output != sumPathsII(input)) {ns.print('FAILED'); break;}
+        else ns.print('SUCCESS!');
+    }
 }

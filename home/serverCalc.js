@@ -13,7 +13,7 @@ export function serverCalc() {
     let ram = 2;
 
     for(let pow = 1; pow <= 20; pow++) {
-        out.push([Math.pow(ram, pow) + 'GB', nFormatter(Math.pow(ram, pow) * 5.5e5) + '']);
+        out.push([Math.pow(ram, pow) + 'GB', nFormatter(Math.pow(ram, pow) * 5.5e4) + '']);
     }
     return out;
 }

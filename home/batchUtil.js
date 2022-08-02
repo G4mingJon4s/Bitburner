@@ -1,5 +1,4 @@
 import { calculateGrowThreads } from './lambert';
-
 import { httpPut, httpPost } from './sendJson';
 
 export const INDEX = {
@@ -77,22 +76,15 @@ export async function launchOperations(ns, server, target, operationsIn, start =
     ns.print(`WAIT - Starting launching... (Start: ${Date.now() - start})`)
     for (let operation of operations) {
         let now = Date.now() - start;
-        if (now + 10 < operation.start) {
+        if (now < operation.start) {
             let delay = operation.start - now;
-            ns.print(`WAIT - waiting for deploy window... (Time: ${delay.toFixed(2)})`);
+            ns.print(`WAIT - waiting for deploy window... (Time: ${tFormatter(delay, false)})`);
             await ns.sleep(delay);
             now = Date.now() - start;
         }
-        let time = 2;
-        let count = 0;
-        while (!checkServerVariables(server)) {
-            ns.sleep(time);
-            ns.print('WAIT - not safe to deploy...');
-            now = Date.now() - start;
-            if(count > 1000) ns.print('WARNING - Long checking time...');
-            count++;
-        };
-        Series.updateTimings(operations, time * count);
+
+        // TODO - Add variable check for safety
+
         if (server.maxRam - ns.getServerUsedRam(server.hostname) < getOperationRam(ns)[Call.convertType(operation.type)] * operation.threads) {
             ns.print('ERROR - Not enough ram!');
             now = Date.now() - start;
@@ -107,7 +99,7 @@ export async function launchOperations(ns, server, target, operationsIn, start =
     }
     ns.print('WAIT - Finished initiating...');
     let now = Date.now() - start;
-    ns.print(`WAIT - Waiting for calls... (Time: ${(sent[sent.length - 1].end - now).toFixed(2)})`)
+    ns.print(`WAIT - Waiting for calls... (Time: ${tFormatter(sent[sent.length - 1].end - now, false)})`)
     await ns.sleep(sent[sent.length - 1].end - now);
     return sent;
 }
@@ -125,10 +117,11 @@ export function convertType(type){
 
 /**
  * 
+ * @param {import('../.vscode/NetscriptDefinitions').NS} ns
  * @param {import('../.vscode/NetscriptDefinitions').Server} server 
  */
-export function checkServerVariables(server) {
-    return server.moneyAvailable == server.moneyMax && server.minDifficulty == server.hackDifficulty;
+export function checkServerVariables(ns, server) {
+    return ns.getServerMoneyAvailable(server.hostname) == server.moneyMax && server.minDifficulty == ns.getServerSecurityLevel(server.hostname);
 }
 
 /**
@@ -169,7 +162,7 @@ export function checkTimingChange(ns, server, type, time, player = ns.getPlayer(
  * @param {number} mode mode of calls. can have MODE value as input.
  * @param {number} ram available ram to use.
  * @param {percentage} percentage percentage of calls. if mode is 2 (MODE.W) percentage is ignored.
- * @param {import('../.vscode/NetscriptDefinitions').Server} target server.
+ * @param {import('../.vscode/NetscriptDefinitions').Server} server server.
  * @param {import('../.vscode/NetscriptDefinitions').Player} player player to use.
  * @param {number} offset time between each call.
  * @param {number} safetime offset time between batches.
@@ -186,12 +179,15 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
         case MODE.HWGW: {
             let threadHack;
             if (ns.fileExists('Formulas.exe', 'home')){
-                threadHack = Math.floor(ns.formulas.hacking.hackPercent(server, player) / percentage) >= 1 ? Math.floor(ns.formulas.hacking.hackPercent(server, player) / percentage) : 1;
+                threadHack = Math.max(Math.ceil(percentage / ns.formulas.hacking.hackPercent(server, player)), 1);
             } else {
-                threadHack = Math.floor(ns.hackAnalyze(server.hostname) / percentage) >= 1 ? Math.floor(ns.hackAnalyze(server.hostname) / percentage) : 1;
+                threadHack = Math.max(Math.floor(percentage / ns.hackAnalyze(server.hostname)), 1);
+
+                // IMPORTANT - Fix hack thread calculation -> implement percentage to leach correctly
+
             }
-            let potentialMoney = threadHack * ns.hackAnalyze(server.hostname);
-            let threadGrow = Math.ceil(calculateGrowThreads(ns, server.hostname, potentialMoney)) + 1;
+            let potentialMoney = threadHack * ns.hackAnalyze(server.hostname) * server.moneyMax;
+            let threadGrow = Math.max(Math.ceil(calculateGrowThreads(ns, server.hostname, potentialMoney)), 1) + 1;
 
             let threadWeaken1 = Math.ceil(threadHack * 0.002 / 0.05);
             let threadWeaken2 = Math.ceil(threadGrow * 0.004 / 0.05);
@@ -205,7 +201,7 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
             for (let i = 0; i < ramBatch.length; i++) ramBatch[i] *= operationThread[i];
 
             let ramLimit = Math.floor(ram / [...ramBatch].reduce((a,b) => (a + b)));
-            let limit = timeLimit > ramLimit ? ramLimit : timeLimit;
+            let limit = Math.min(ramLimit, timeLimit);
             while (limit * [...ramBatch].reduce((a,b) => (a + b)) > ram && limit - 1 > 0){
                 limit--;
                 ns.print('WAIT - Lowering limit...');
@@ -223,7 +219,8 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
             ns.print('Limit: ', limit);
             ns.print('timeLimit: ', timeLimit);
             ns.print('ram Limit: ', ramLimit);
-            ns.print('ramBatch: ', operationRam);
+            ns.print('Ram: ', ramBatch.reduce((a,b) => (a + b)));
+            ns.print('threads: ', operationThread);
 
             for (let i = 0; i < limit; i++) {
                 let weakenCall1 = new Call('weaken', start + (i * safetime), operationTime[INDEX.W] + start + (i * safetime), threadWeaken1);
@@ -238,8 +235,7 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
             break;
         }
         case MODE.GW: {
-            let threadGrow = ns.growthAnalyze(server.hostname, 1 + percentage, server.cpuCores);
-            threadGrow = threadGrow >= 1 ? Math.ceil(threadGrow) : 1;
+            let threadGrow = Math.max(Math.ceil(calculateGrowThreads(ns, server.hostname, server.moneyMax * percentage, server.cpuCores)), 1);
             let threadWeaken = Math.ceil(threadGrow * 0.004 / 0.05);
 
             let timeLimit = Math.floor(operationTime[INDEX.W] / (offset * 2 + safetime));
@@ -264,7 +260,7 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
             ns.print('Limit: ', limit);
             ns.print('timeLimit: ', timeLimit);
             ns.print('ram Limit: ', ramLimit);
-            ns.print('ramBatch: ', operationRam);
+            ns.print('Ram: ', ramBatch.reduce((a,b) => (a + b)));
 
             for (let i = 0; i < limit; i++) {
                 let weakenCall = new Call('weaken', start + (i * safetime), operationTime[INDEX.W] + start + (i * safetime), threadWeaken);
@@ -276,11 +272,11 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
             break;
         }
         case MODE.W: {
+            if (ram < operationRam[INDEX.W]) throw new Error('Not enough ram!');
+            let threadWeaken = Math.max(Math.ceil((ns.getServerSecurityLevel(server.hostname) - server.minDifficulty) / 0.05), 1);
             let timeLimit = Math.floor(operationTime[INDEX.W] / safetime);
-            let valueLimit = Math.ceil((ns.getServerSecurityLevel(server.hostname) - server.minDifficulty) / 0.05);
-            let limit = Math.min(timeLimit, valueLimit);
-            if (server.maxRam - ns.getServerUsedRam(server.hostname) < operationRam[INDEX.W]) throw new Error('Not enough ram!');
-            let threadWeaken = Math.max(Math.floor((ram / operationRam[INDEX.W]) / limit), 1);
+            let ramLimit = Math.floor(ram / (operationRam[INDEX.W] * threadWeaken));
+            let limit = Math.min(timeLimit, ramLimit);
             while (limit * threadWeaken * operationRam[INDEX.W] > ram && limit - 1 > 0) {
                 limit--;
                 ns.print('WAIT - Lowering limit...');
@@ -289,8 +285,8 @@ export async function createCalls(ns, mode = MODE.HWGW, ram, percentage, server,
             ns.print('DEBUG:');
             ns.print('Limit: ', limit);
             ns.print('timeLimit: ', timeLimit);
-            ns.print('valueLimit: ', valueLimit);
-            ns.print('ramBatch: ', operationRam);
+            ns.print('ramLimit: ', ramLimit);
+            ns.print('Ram: ', operationRam[INDEX.W] * threadWeaken);
 
             for (let i = 0; i < limit; i++) {
                 let weakenCall = new Call('weaken', start + (i * safetime), operationTime[INDEX.W] + start + (i * safetime), threadWeaken);
@@ -402,4 +398,65 @@ export class Series {
             operation.end += offset;
         }
     }
+}
+
+export function nFormatter(num, digits = 2) {
+    const neg = num < 0;
+    if (neg) {
+        num = -1 * num;
+    }
+    const lookup = [{
+            value: 1,
+            symbol: ""
+        },
+        {
+            value: 1e3,
+            symbol: "k"
+        },
+        {
+            value: 1e6,
+            symbol: "m"
+        },
+        {
+            value: 1e9,
+            symbol: "b"
+        },
+        {
+            value: 1e12,
+            symbol: "t"
+        },
+        {
+            value: 1e15,
+            symbol: "q"
+        },
+        {
+            value: 1e18,
+            symbol: "Q"
+        }
+    ];
+    const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
+    var item = lookup.slice().reverse().find(function (item) {
+        return num >= item.value;
+    });
+    let result =  item ? (num / item.value).toFixed(digits).replace(rx, "$1") + item.symbol : "0";
+    if (neg) {
+        return '-' + result;
+    }
+    return result;
+}
+
+export function tFormatter(ticks, simple = true) {
+    let seconds = ticks / 1000;
+    if (seconds < 1) return ticks.toFixed(0) + 't';
+    if (!simple && seconds > 60) {
+        let minutes = Math.floor(seconds / 60);
+        seconds -= minutes * 60;
+        if (minutes > 60) {
+            let hour = Math.floor(minutes / 60);
+            minutes -= hour * 60;
+            return hour.toString() + 'h ' + minutes.toString + 'm ' + seconds.toFixed(2) + 's';
+        }
+        return minutes.toString() + 'm ' + seconds.toFixed(2) + 's';
+    }
+    return seconds.toFixed(2) + 's';
 }

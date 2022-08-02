@@ -72,7 +72,7 @@ export function table(values, div = false, compress = false, spaces = true) {
         }
     }
 
-    let lengths = Array(col).fill(0);
+    let lengths = Array(col).fill().map(() => 0);
     for (let i = 0; i < values.length; i++) {
         let data = values[i];
         for (let j = 0; j < data.length; j++) {
@@ -97,7 +97,7 @@ export function table(values, div = false, compress = false, spaces = true) {
    }
    if (compress) {
         let result = [head, ...lines, butt];
-        let string = result.reduce((a, b) => (a.join(spaces ? '\n' + spaces + b : '\n' + b)));
+        let string = result.reduce((a, b) => (a + ((spaces ? '\n' + timePad + b : '\n' + b))));
         return string;
    }
 
@@ -106,7 +106,7 @@ export function table(values, div = false, compress = false, spaces = true) {
 
 /**
  * Creates lines for each entry in `data`.
- * @param {number[]} lengths Maximum length of each array inside `data`.
+ * @param {number[]} lengths Maximum length of each entry inside `data`.
  * @param {string} sep The seperator char between entries.
  * @param {string[][]} data A 2-dimensional array, where each array represents one column.
  * @returns An array with strings, for each entry inside `data`.

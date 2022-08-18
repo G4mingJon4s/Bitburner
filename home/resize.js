@@ -1,4 +1,4 @@
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   let name = ns.args[0];
   let width = ns.args[1] ?? 400;
@@ -20,14 +20,14 @@ export async function main(ns) {
 }
 
 /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
-export function newWindow(ns, width, height) {
+export function newWindow(ns, width, height, x, y) {
   let doc = eval("document");
   ns.tail();
-  let logArea = doc.querySelector(
-    ".react-draggable:last-child .react-resizable:last-child"
-  );
-  logArea.style.width = width + "px";
-  logArea.style.height = height + "px";
+  let logArea = [...doc.querySelectorAll(".react-draggable")].pop();
+  logArea.style.left = x + "px";
+  logArea.style.top = y + "px";
+  logArea.firstChild.style.width = width + "px";
+  logArea.firstChild.style.height = height + "px";
 }
 
 export function resizeWindow(name, width, height) {

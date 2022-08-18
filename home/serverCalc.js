@@ -1,13 +1,13 @@
 import { table } from "./tables";
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   const data = serverCalc(ns);
   const printable = table(data, false);
   ns.tprint(printable);
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export function serverCalc(ns, visual = true) {
   return new Array(Math.log2(ns.getPurchasedServerMaxRam()))
     .fill()

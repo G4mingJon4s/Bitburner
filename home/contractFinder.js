@@ -1,7 +1,7 @@
 import { table } from "./tables";
 
 /**
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns
+ * @param {import('../NetscriptDefinitions').NS} ns
  */
 export async function main(ns) {
   let servers = await getAllServers(ns);
@@ -13,7 +13,7 @@ export async function main(ns) {
 
 /**
  * Gets all servers.
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns netscript interface.
+ * @param {import('../NetscriptDefinitions').NS} ns netscript interface.
  * @returns {String[]} Array of all server names.
  */
 export async function getAllServers(ns) {
@@ -37,15 +37,18 @@ export async function getAllServers(ns) {
 }
 
 /**
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns
+ * @param {import('../NetscriptDefinitions').NS} ns
+ * @returns {string[][] | {name: string, contracts: string[]}[]}
  */
-function getAllContracts(ns, servers, ignore = true, visual = true) {
+export function getAllContracts(ns, servers, ignore = true, visual = true) {
   let result = visual ? [["Server", "Contracts"]] : [];
   for (let server of servers) {
     if (ns.ls(server, ".cct")) {
       let found = ns.ls(server, ".cct");
       if (ignore && found.length === 0) continue;
-      result.push([server, ...found]);
+      result.push(
+        visual ? [server, ...found] : { name: server, contracts: found }
+      );
     }
   }
   return result;

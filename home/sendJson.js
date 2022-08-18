@@ -1,20 +1,24 @@
 /**
- * 
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns 
+ *
+ * @param {import('../NetscriptDefinitions').NS} ns
  */
 export async function main(ns) {
-    let server = ns.args[0];
-    let name = ns.args[1];
+  let server = ns.args[0];
+  let name = ns.args[1];
 
-    ns.print(await httpGet('http://localhost:3000/batchlog').status);
+  ns.print(await httpGet("http://localhost:3000/batchlog").status);
 
-    let data = '[';
-    data += await getContent(ns, server, name, 1);
-    data = data.slice(0,-1);
-    data += ']';
-    ns.print(`Sending: ${data.slice(0,5000)}     ...     ${data.slice(data.length-100)}`);
-    let res = await httpPut('http://localhost:3000/batchlog', data);
-    ns.print(res.status);
+  let data = "[";
+  data += await getContent(ns, server, name, 1);
+  data = data.slice(0, -1);
+  data += "]";
+  ns.print(
+    `Sending: ${data.slice(0, 5000)}     ...     ${data.slice(
+      data.length - 100
+    )}`
+  );
+  let res = await httpPut("http://localhost:3000/batchlog", data);
+  ns.print(res.status);
 }
 
 /**
@@ -24,11 +28,11 @@ export async function main(ns) {
  * @returns response from http fetch
  */
 export async function httpPut(url, data) {
-    return await fetch(url, {
-      method: 'PUT', 
-      body: data,
-      headers: {'Content-Type': 'application/json; charset=utf-8'}
-    });
+  return await fetch(url, {
+    method: "PUT",
+    body: data,
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+  });
 }
 
 /**
@@ -38,11 +42,11 @@ export async function httpPut(url, data) {
  * @returns response from http fetch
  */
 export async function httpPost(url, data) {
-    return await fetch(url, {
-        method: 'POST',
-        body: data,
-        headers: {'Content-Type': 'application/json; charset=utf-8'}
-    });
+  return await fetch(url, {
+    method: "POST",
+    body: data,
+    headers: { "Content-Type": "application/json; charset=utf-8" },
+  });
 }
 
 /**
@@ -52,23 +56,23 @@ export async function httpPost(url, data) {
  */
 export async function httpGet(url) {
   return await fetch(url, {
-    method: 'GET',
-  })
+    method: "GET",
+  });
 }
 
 /**
- * 
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns 
- * @param {import('../.vscode/NetscriptDefinitions').Server} server 
+ *
+ * @param {import('../NetscriptDefinitions').NS} ns
+ * @param {import('../NetscriptDefinitions').Server} server
  * @param {string} name file name
  * @param {number} port port number from 1-20
- * @returns 
+ * @returns
  */
-export async function getContent(ns, server, name, port){
+export async function getContent(ns, server, name, port) {
   let portHandle = ns.getPortHandle(port);
-  await ns.scp('getter.js','home',server);
-  await ns.exec('getter.js', server, 1, name, port);
-  while(portHandle.empty()){
+  await ns.scp("getter.js", "home", server);
+  await ns.exec("getter.js", server, 1, name, port);
+  while (portHandle.empty()) {
     await ns.sleep(1000);
   }
   let data = portHandle.read();

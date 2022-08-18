@@ -4,8 +4,10 @@ import { table } from "./tables";
 import { gbFormatter, nFormatter, tFormatter } from "./serverCalc";
 import { calculateGrowThreads } from "./lambert";
 import { serverCalc } from "./serverCalc";
+import { OFFSET } from "./batchController";
+import { MAXLIMIT } from "./batchUtil";
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   const mode = ns.args[0] ?? 0;
   switch (mode) {
@@ -21,7 +23,7 @@ export async function main(ns) {
   }
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function benchmarkServerStats(ns) {
   const servers = (await getAllServers(ns)).filter(
     (name) => ns.getServer(name).moneyMax > 0
@@ -48,7 +50,7 @@ export async function benchmarkServerStats(ns) {
   return data;
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function benchmarkServerBatch(ns, visual = true) {
   const player = ns.getPlayer();
   const servers = (await getAllServers(ns))
@@ -64,9 +66,8 @@ export async function benchmarkServerBatch(ns, visual = true) {
         obj.requiredHackingSkill <= player.hacking &&
         obj.moneyMax > 0
     );
-  const ramValues = serverCalc(ns, false)
-    .map((arr) => arr[0])
-    .filter((ram) => ram > 128);
+  const ramValues = serverCalc(ns, false).map((arr) => arr[0]);
+  // .filter((ram) => ram > 128);
   const hasFormulas = ns.fileExists("Formulas.exe", "home");
   const percentages = [
     0.01, 0.02, 0.03, 0.04, 0.05, 0.07, 0.1, 0.15, 0.25, 0.45, 0.55, 0.75, 0.85,
@@ -111,7 +112,14 @@ export async function benchmarkServerBatch(ns, visual = true) {
           ram,
           score: percentages.map((p, j) => ({
             value:
-              (Math.floor(ram / batchCosts[j]) * chance * server.moneyMax * p) /
+              (Math.min(
+                Math.floor(ram / batchCosts[j]),
+                Math.floor(time / (OFFSET * 6)),
+                MAXLIMIT
+              ) *
+                chance *
+                server.moneyMax *
+                p) /
               time,
             percentage: p,
           })),
@@ -148,7 +156,6 @@ export async function benchmarkServerBatch(ns, visual = true) {
   return data;
 }
 
-/** @param {{name: string; scores: {ram: number; score: {value: number; percentage: number}[]}[]}[]} data */
 export async function getBestServer(ns, visual = true) {
   const data = await benchmarkServerBatch(ns, false);
   const best = data.map((entry) => ({

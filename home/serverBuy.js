@@ -1,7 +1,7 @@
 import { getMaxServerPossible } from "./serverCalc";
 import { nFormatter } from "./serverCalc";
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   const [maxRam, price] = getMaxServerPossible(ns, false);
   const name = ns.args[0] ?? "pserv";

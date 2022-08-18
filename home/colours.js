@@ -1,4 +1,4 @@
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   const length = 16;
   const char = "i";

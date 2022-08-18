@@ -1,5 +1,5 @@
 /**
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns
+ * @param {import('../NetscriptDefinitions').NS} ns
  */
 export async function main(ns) {
   const target = ns.args[0];
@@ -29,7 +29,7 @@ export async function main(ns) {
 }
 
 /**
- * @param {import('../.vscode/NetscriptDefinitions').NS} ns
+ * @param {import('../NetscriptDefinitions').NS} ns
  * @param {String} current
  * @param {String} target
  * @returns {String[] | undefined}
@@ -74,7 +74,7 @@ export function convertToConnect(arr) {
   return out;
 }
 
-/**@param {import('../.vscode/NetscriptDefinitions').AutocompleteData} data */
+/**@param {import('../NetscriptDefinitions').AutocompleteData} data */
 export function autocomplete(data, args) {
   return [...data.servers, "true", "false"];
 }

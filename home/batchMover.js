@@ -1,6 +1,5 @@
-/**@param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/**@param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
-  let target = ns.args[0];
   const files = [
     "c-weaken.js",
     "c-grow.js",
@@ -11,7 +10,11 @@ export async function main(ns) {
     "lambert.js",
     "resize.js",
   ];
-  await ns.scp(files, "home", target);
+  for (let target of ns.args) {
+    if (ns.serverExists(target)) {
+      await ns.scp(files, "home", target);
+    }
+  }
 }
 
 export function autocomplete(data, args) {

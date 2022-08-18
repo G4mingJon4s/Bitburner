@@ -55,7 +55,7 @@ function canMoveDown(pos, grid) {
 
 /**
  *
- * @param {import('../../.vscode/NetscriptDefinitions').NS} ns
+ * @param {import('../../NetscriptDefinitions').NS} ns
  */
 export async function main(ns) {
   ns.disableLog("ALL");

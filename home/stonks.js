@@ -14,26 +14,33 @@ const RATES = {
   },
 };
 
+export const SHORT = false;
+
 const LOGSIZE = 12;
 const SCRIPTNAME = "stonks.js";
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   ns.disableLog("ALL");
   ns.clearLog();
 
+  if (!ns.stock.hasTIXAPIAccess || !ns.stock.hasWSEAccount)
+    return ns.tprint("ERROR: You don't have the TIX API or a WSE account!");
+
   const percentage =
     ns.args[0] !== undefined && ns.args[0] < 95 ? ns.args[0] : 95;
-  const hasApi = ns.getPlayer().has4SDataTixApi;
-  const canShort =
-    ns.getOwnedSourceFiles().some((s) => s.n == 8 && s.lvl >= 2) ||
-    ns.getPlayer().bitNodeN == 8;
+  const hasApi = ns.stock.has4SDataTIXAPI();
+  const canShort = SHORT
+    ? ns.singularity
+        .getOwnedSourceFiles()
+        .some((s) => s.n == 8 && s.lvl >= 2) || ns.getPlayer().bitNodeN == 8
+    : false;
   const symbols = ns.stock.getSymbols();
 
   let money = (ns.getPlayer().money * percentage) / 100;
 
   if (money < 1e7) return ns.tprint("ERROR: Not enough money!");
-  newWindow(ns, 900, hasApi ? 250 : 700);
+  newWindow(ns, 861, hasApi ? 150 : 700);
 
   let logs = !hasApi ? await getLogs(ns) : undefined;
 
@@ -43,12 +50,15 @@ export async function main(ns) {
 
     const entry = findBestStock(
       ns,
-      money - 1e6,
+      money - 2e6,
       canShort,
       hasApi ? undefined : convertLogs(logs)
     );
-    if (entry === undefined)
-      return ns.tprint("ERROR: Could not find a viable stock!");
+    if (entry === undefined) {
+      ns.print("ERROR: Could not find a viable stock!");
+      await ns.sleep(2000);
+      continue;
+    }
     const stock = new Stock(
       ns,
       entry.symbol,
@@ -60,6 +70,11 @@ export async function main(ns) {
         : ns.stock.getBidPrice(entry.symbol),
       entry.short
     );
+
+    if (!stock.working) {
+      await ns.sleep(2000);
+      continue;
+    }
 
     while (
       stock.update(
@@ -79,12 +94,12 @@ export async function main(ns) {
   }
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export function isMarketUpdated(ns, ECPBidPrice) {
   return ECPBidPrice != ns.stock.getBidPrice("ECP");
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function getLogs(ns) {
   ns.print(`INFO: Getting stock prices... (0 / ${LOGSIZE})`);
 
@@ -126,12 +141,12 @@ export async function getLogs(ns) {
     }
   }
 
-  resizeWindow(SCRIPTNAME, 900, 250);
+  resizeWindow(SCRIPTNAME, 861, 150);
 
   return logs;
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export function updateLogs(ns, logs) {
   const symbols = ns.stock.getSymbols();
 
@@ -153,7 +168,7 @@ export function convertToForeCast(log) {
   return up / log.length;
 }
 
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export function findBestStock(
   ns,
   money,
@@ -166,7 +181,7 @@ export function findBestStock(
     const symbol = x;
     const foreCast = hasApi ? ns.stock.getForecast(symbol) : foreCasts[i];
     const shares = ns.stock.getMaxShares(symbol);
-    const short = foreCast < RATES.long.buy;
+    const short = foreCast < 0.5;
     const price = short
       ? ns.stock.getBidPrice(symbol)
       : ns.stock.getAskPrice(symbol);
@@ -174,6 +189,7 @@ export function findBestStock(
       Math.floor(Math.floor(money) / Math.ceil(price)),
       shares
     );
+    const score = price * Math.pow(Math.abs(0.5 - foreCast), 1.35);
     return {
       symbol,
       foreCast,
@@ -181,6 +197,7 @@ export function findBestStock(
       short,
       price,
       buyableShares,
+      score,
     };
   });
   const possible = data.filter(
@@ -188,90 +205,26 @@ export function findBestStock(
       entry.foreCast > RATES.long.buy ||
       (entry.foreCast < RATES.short.buy && canShort)
   );
-  const best = possible
-    .map((entry) => {
-      return entry.short ? 0.5 - entry.foreCast : entry.foreCast - 0.5;
-    })
-    .reduce((acc, n, i, arr) => {
-      return arr[acc] < n ? i : acc;
-    }, 0);
-  return possible[best];
+  const best = possible.reduce(
+    (acc, cur) => {
+      if (acc.score < cur.score) return cur;
+      return acc;
+    },
+    {
+      symbol: "",
+      foreCast: 0,
+      shares: 0,
+      short: false,
+      price: Infinity,
+      buyableShares: 0,
+      score: 0,
+    }
+  );
+  return best;
 }
 
-// /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
-// export function findBestStock(
-//   ns,
-//   money,
-//   canShort = false,
-//   foreCasts = undefined
-// ) {
-//   const mode = typeof foreCasts !== "undefined";
-//   const symbols = ns.stock.getSymbols();
-//   let possible = [];
-
-//   for (const symbol of symbols) {
-//     const foreCast = mode
-//       ? foreCasts[symbols.indexOf(symbol)]
-//       : ns.stock.getForecast(symbol);
-//     const shares = ns.stock.getMaxShares(symbol);
-//     let price = ns.stock.getAskPrice(symbol);
-//     let profitable = foreCast > RATES.long.buy;
-//     let short = false;
-
-//     if (!profitable && canShort) {
-//       price = ns.stock.getBidPrice(symbol);
-//       profitable = foreCast < RATES.short.buy;
-//       short = true;
-//     }
-
-//     const buyableShares = Math.min(
-//       Math.floor(Math.floor(money) / Math.ceil(price)),
-//       shares
-//     );
-
-//     if (profitable) {
-//       const entry = {
-//         symbol,
-//         foreCast,
-//         shares,
-//         buyableShares,
-//         price,
-//         short,
-//       };
-
-//       possible.push(entry);
-//     }
-//   }
-
-//   if (possible.length == 0) return undefined;
-
-//   let bestIndex = 0;
-//   let bestProfit = 0;
-//   let bestForecast = 0;
-
-//   for (const entry of possible) {
-//     const profit = entry.shares * entry.price;
-//     if (profit > money || bestProfit === undefined) {
-//       bestProfit = undefined;
-//       const offset = entry.short ? 0.5 - entry.foreCast : entry.foreCast - 0.5;
-//       if (bestForecast < offset) {
-//         bestIndex = possible.indexOf(entry);
-//         bestForecast = offset;
-//       }
-//       continue;
-//     }
-//     const betterProfit = bestProfit < profit;
-//     if (betterProfit) {
-//       bestIndex = possible.indexOf(entry);
-//       bestProfit = profit;
-//     }
-//   }
-
-//   return possible[bestIndex];
-// }
-
 export class Stock {
-  /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+  /** @param {import('../NetscriptDefinitions').NS} ns */
   constructor(
     ns,
     symbol,
@@ -297,7 +250,7 @@ export class Stock {
     this.visual(ns, "buy");
   }
 
-  /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+  /** @param {import('../NetscriptDefinitions').NS} ns */
   update(ns, foreCast) {
     if (!this.working) return false;
     this.foreCast = foreCast;
@@ -321,7 +274,7 @@ export class Stock {
     return !doSell;
   }
 
-  /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+  /** @param {import('../NetscriptDefinitions').NS} ns */
   visual(ns, mode = "update") {
     const colours = {
       loss: "\x1b[0;49;31m",
@@ -389,20 +342,26 @@ export class Stock {
     }
   }
 
-  /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+  /** @param {import('../NetscriptDefinitions').NS} ns */
   sell(ns) {
     const result = this.short
       ? ns.stock.sellShort(this.symbol, this.shareCount)
-      : ns.stock.sell(this.symbol, this.shareCount);
+      : ns.stock.sellStock(this.symbol, this.shareCount);
     if (result === 0) ns.tprint("ERROR: Could not sell!");
     return result;
   }
 
-  /** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+  /** @param {import('../NetscriptDefinitions').NS} ns */
   buy(ns) {
+    const [long, priceLong, short, priceShort] = ns.stock.getPosition(
+      this.symbol
+    );
+    if (long > 0) ns.stock.sellStock(this.symbol, long);
+    if (short > 0) ns.stock.sellShort(this.symbol, short);
+
     const result = this.short
-      ? ns.stock.short(this.symbol, this.shareCount)
-      : ns.stock.buy(this.symbol, this.shareCount);
+      ? ns.stock.buyShort(this.symbol, this.shareCount)
+      : ns.stock.buyStock(this.symbol, this.shareCount);
     if (result === 0) ns.tprint("ERROR: Could not buy!");
     return result;
   }

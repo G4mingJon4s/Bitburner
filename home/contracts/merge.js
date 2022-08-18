@@ -220,11 +220,15 @@ async function runTests(ns) {
       ],
     },
   ];
-  ns.tail();
   for (let test of data) {
-    let out = test.output;
-    let inp = test.input;
-    let guess = await mergeOverlap(inp);
-    ns.tprint(guess, out, guess == out);
+    const output = test.output;
+    const input = test.input;
+    const answer = await mergeOverlap(input);
+    const failed = answer.some((s, i) => s.some((n, j) => output[i][j] !== n));
+    ns.tprint(failed ? "FAILED " : "SUCCESS");
+    if (failed) {
+      ns.tprint(output);
+      ns.tprint(answer);
+    }
   }
 }

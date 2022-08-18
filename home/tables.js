@@ -1,4 +1,4 @@
-/** @param {import('../.vscode/NetscriptDefinitions').NS} ns */
+/** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
   const data = [
     ["Keys", "Values"],
@@ -16,6 +16,8 @@ export async function main(ns) {
 
 export function table(data, header = true, divisor = true) {
   const style = DefaultStyle();
+
+  data = data.map((val) => val.map((s) => s.toString()));
 
   let col = Math.max(...data.map((a) => a.length));
 

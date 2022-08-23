@@ -1,9 +1,9 @@
-import { getAllServers } from "./contractFinder";
-import { COLOURS } from "./colours";
+import { getAllServers } from "./contractFinder"
+import { COLOURS } from "./colours"
 
 /** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
-  exploitServers(ns, await getAllServers(ns));
+	exploitServers(ns, await getAllServers(ns))
 }
 
 /**

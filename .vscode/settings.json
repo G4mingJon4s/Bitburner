@@ -1,15 +1,25 @@
-{ "bitburner.authToken": "7tiAeZ7JGQ/xmHyBoe1Ysrpo1yb8/Y/KFLbbouXf6NfgOl2k7cXP+HUI0EFeSrii", 
-    "bitburner.scriptRoot": "./home/", 
-    "bitburner.fileWatcher.enable": false, 
-    "bitburner.showPushSuccessNotification": true, 
-    "bitburner.showFileWatcherEnabledNotification": true,
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/Thumbs.db": true,
-        "**/server":false,
-    }
+{
+  "bitburner.authToken": "7tiAeZ7JGQ/xmHyBoe1Ysrpo1yb8/Y/KFLbbouXf6NfgOl2k7cXP+HUI0EFeSrii",
+  "bitburner.scriptRoot": "./home/",
+  "bitburner.fileWatcher.enable": false,
+  "bitburner.showPushSuccessNotification": true,
+  "bitburner.showFileWatcherEnabledNotification": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/server": false
+  },
+  "editor.defaultFormatter": "rvest.vs-code-prettier-eslint",
+  "editor.formatOnPaste": false, // required
+  "editor.formatOnType": false, // required
+  "editor.formatOnSave": true, // optional
+  "editor.formatOnSaveMode": "file", // required to format on save
+  "files.autoSave": "onFocusChange",
+  "[javascript]": {
+    "editor.defaultFormatter": "rvest.vs-code-prettier-eslint"
+  } // optional but recommended
 }

@@ -1,28 +1,28 @@
 export function RLEEncode(string) {
-    let arr = string.split('');
-    let out = "";
+	let arr = string.split("")
+	let out = ""
 
-    let count = 0;
-    let char = arr[0];
-    for(let i = 0; i < arr.length; i++) {
-        if (arr[i] !== char || count >= 9) {
-            out += count;
-            out += char;
-            char = arr[i];
-            count = 1;
-            continue;
-        }
-        count++;
-        if (i + 1 >= arr.length) {
-            out += count;
-            out += char;
-            break;
-        }
-    }
-    return out;
+	let count = 0
+	let char = arr[0]
+	for (let i = 0; i < arr.length; i++) {
+		if (arr[i] !== char || count >= 9) {
+			out += count
+			out += char
+			char = arr[i]
+			count = 1
+			continue
+		}
+		count++
+		if (i + 1 >= arr.length) {
+			out += count
+			out += char
+			break
+		}
+	}
+	return out
 }
 
 export async function main(ns) {
-    let string = ns.args[0];
-    ns.tprint(RLEEncode(string));
+	let string = ns.args[0]
+	ns.tprint(RLEEncode(string))
 }

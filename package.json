@@ -1,0 +1,32 @@
+{
+	"name": "bitburner",
+	"version": "1.0.0",
+	"description": "my bitburner scripts",
+	"main": "index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/G4mingJon4s/Bitburner.git"
+	},
+	"keywords": [
+		"bitburner",
+		"Bitburner",
+		"Javascript",
+		"JS",
+		"Scripts"
+	],
+	"author": "G4mingJon4s",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/Playergamehd/Bitburner/issues"
+	},
+	"homepage": "https://github.com/Playergamehd/Bitburner#readme",
+	"devDependencies": {
+		"eslint": "^8.7.0",
+		"eslint-config-prettier": "^8.5.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"prettier": "^2.5.1"
+	}
+}

@@ -9,14 +9,14 @@ export async function main(ns) {
 		"sendJson.js",
 		"lambert.js",
 		"resize.js",
-	]
+	];
 	for (let target of ns.args) {
 		if (ns.serverExists(target)) {
-			await ns.scp(files, target, "home")
+			await ns.scp(files, target, "home");
 		}
 	}
 }
 
 export function autocomplete(data, args) {
-	return [...data.servers]
+	return [...data.servers];
 }

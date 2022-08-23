@@ -1,70 +1,70 @@
 export function generateIPs(string) {
-	const digits = string.split("")
-	const maxDots = 3
-	const dot = "."
+	const digits = string.split("");
+	const maxDots = 3;
+	const dot = ".";
 
-	const possible = []
+	const possible = [];
 
 	for (let i = 0; i < digits.length; i++) {
 		for (let j = i + 1; j < digits.length + 1; j++) {
 			for (let k = j + 1; k < digits.length + 2; k++) {
-				const copy = digits.slice()
-				copy.splice(i, 0, dot)
-				copy.splice(j, 0, dot)
-				copy.splice(k, 0, dot)
-				possible.push(copy.join(""))
+				const copy = digits.slice();
+				copy.splice(i, 0, dot);
+				copy.splice(j, 0, dot);
+				copy.splice(k, 0, dot);
+				possible.push(copy.join(""));
 			}
 		}
 	}
 
 	const valid = possible.filter((s) => {
-		const arr = s.split("")
-		let isInvalid = false
-		let count = 0
+		const arr = s.split("");
+		let isInvalid = false;
+		let count = 0;
 		for (let i = 0; i < arr.length; ) {
-			const char = arr[i]
+			const char = arr[i];
 			if (char === dot && arr[i + 1] === dot) {
-				isInvalid = true
-				break
+				isInvalid = true;
+				break;
 			}
 			if (char === dot) {
-				count++
+				count++;
 				if (count > maxDots || i === 0) {
-					isInvalid = true
-					break
+					isInvalid = true;
+					break;
 				}
-				i++
-				continue
+				i++;
+				continue;
 			}
-			const numbers = [char]
-			i++
+			const numbers = [char];
+			i++;
 			while (i < arr.length && arr[i] !== dot) {
-				numbers.push(arr[i])
-				i++
+				numbers.push(arr[i]);
+				i++;
 			}
-			const number = parseInt(numbers.join(""))
+			const number = parseInt(numbers.join(""));
 			if (
 				isNaN(number) ||
 				number > 255 ||
 				numbers.length > 3 ||
 				(numbers[0] === "0" && numbers.length > 1)
 			) {
-				isInvalid = true
-				break
+				isInvalid = true;
+				break;
 			}
 		}
-		return !isInvalid
-	})
-	return valid
+		return !isInvalid;
+	});
+	return valid;
 }
 
 export async function main(ns) {
 	for (const test of testCases) {
-		const input = test.input
-		const output = test.output
-		const answer = generateIPs(input)
-		const failed = answer.some((s, i) => s != output[i])
-		ns.tprint(failed ? "FAILED" : "SUCCESS")
+		const input = test.input;
+		const output = test.output;
+		const answer = generateIPs(input);
+		const failed = answer.some((s, i) => s != output[i]);
+		ns.tprint(failed ? "FAILED" : "SUCCESS");
 	}
 }
 
@@ -102,4 +102,4 @@ const testCases = [
 			"232.204.6.2",
 		],
 	},
-]
+];

@@ -1,27 +1,27 @@
 /**@param {number[][]} arr */
 export async function mergeOverlap(arr) {
-	const sleep = (ms) => new Promise((r) => setTimeout(r, ms))
+	const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 	while (true) {
-		let merged = false
+		let merged = false;
 		for (let i = 0; i < arr.length; i++) {
 			for (let j = 0; j < arr.length; j++) {
-				if (i === j) continue
-				if (!hasOverlap(arr[i], arr[j])) continue
-				const jValue = arr[j]
-				const newEntry = merge(arr[i], jValue)
-				arr.splice(i, 1)
-				arr.splice(arr.indexOf(jValue), 1)
-				arr.push(newEntry)
-				merged = true
-				break
+				if (i === j) continue;
+				if (!hasOverlap(arr[i], arr[j])) continue;
+				const jValue = arr[j];
+				const newEntry = merge(arr[i], jValue);
+				arr.splice(i, 1);
+				arr.splice(arr.indexOf(jValue), 1);
+				arr.push(newEntry);
+				merged = true;
+				break;
 			}
-			if (merged) break
+			if (merged) break;
 		}
-		if (!merged) break
-		await sleep(10)
+		if (!merged) break;
+		await sleep(10);
 	}
-	return arr.sort((a, b) => a[0] - b[0])
+	return arr.sort((a, b) => a[0] - b[0]);
 }
 
 /**
@@ -29,8 +29,8 @@ export async function mergeOverlap(arr) {
  * @param {number[]} b
  * */
 function hasOverlap(a, b) {
-	if (a[0] === b[0] || a[1] === b[1]) return true
-	return a[0] < b[0] ? b[0] <= a[1] : a[0] <= b[1]
+	if (a[0] === b[0] || a[1] === b[1]) return true;
+	return a[0] < b[0] ? b[0] <= a[1] : a[0] <= b[1];
 }
 
 /**
@@ -38,11 +38,11 @@ function hasOverlap(a, b) {
  * @param {number[]} b
  * */
 function merge(a, b) {
-	return [Math.min(a[0], b[0]), Math.max(a[1], b[1])]
+	return [Math.min(a[0], b[0]), Math.max(a[1], b[1])];
 }
 
 export async function main(ns) {
-	await runTests(ns)
+	await runTests(ns);
 }
 
 async function runTests(ns) {
@@ -219,16 +219,16 @@ async function runTests(ns) {
 				[13, 29],
 			],
 		},
-	]
+	];
 	for (let test of data) {
-		const output = test.output
-		const input = test.input
-		const answer = await mergeOverlap(input)
-		const failed = answer.some((s, i) => s.some((n, j) => output[i][j] !== n))
-		ns.tprint(failed ? "FAILED " : "SUCCESS")
+		const output = test.output;
+		const input = test.input;
+		const answer = await mergeOverlap(input);
+		const failed = answer.some((s, i) => s.some((n, j) => output[i][j] !== n));
+		ns.tprint(failed ? "FAILED " : "SUCCESS");
 		if (failed) {
-			ns.tprint(output)
-			ns.tprint(answer)
+			ns.tprint(output);
+			ns.tprint(answer);
 		}
 	}
 }

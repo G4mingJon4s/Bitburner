@@ -1,4 +1,4 @@
-import { table } from "./tables"
+import { table } from "./tables";
 
 // prettier-ignore
 export const DEFAULTS = {
@@ -8,7 +8,7 @@ export const DEFAULTS = {
 
 /** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
-	const mults = ns.getBitNodeMultipliers()
+	const mults = ns.getBitNodeMultipliers();
 	const data = Object.entries(mults)
 		.filter(
 			(arr) =>
@@ -25,8 +25,8 @@ export async function main(ns) {
 					? "%"
 					: ""
 				: arr[1] * 100 + "%",
-		])
-	data.unshift(["Name", "Multiplier"])
-	const tableString = table(data)
-	ns.tprint(tableString)
+		]);
+	data.unshift(["Name", "Multiplier"]);
+	const tableString = table(data);
+	ns.tprint(tableString);
 }

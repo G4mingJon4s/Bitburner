@@ -1,16 +1,16 @@
 export function triangle(input) {
 	function perm(input, layer = 0, index = 0) {
-		if (layer >= input.length - 1) return input[layer][index]
-		const left = perm(input, layer + 1, index)
-		const right = perm(input, layer + 1, index + 1)
-		const current = input[layer][index]
-		return Math.min(left + current, right + current)
+		if (layer >= input.length - 1) return input[layer][index];
+		const left = perm(input, layer + 1, index);
+		const right = perm(input, layer + 1, index + 1);
+		const current = input[layer][index];
+		return Math.min(left + current, right + current);
 	}
-	return perm(input)
+	return perm(input);
 }
 
 export async function main(ns) {
-	test(ns)
+	test(ns);
 }
 
 function test(ns) {
@@ -87,14 +87,14 @@ function test(ns) {
 			],
 			output: 46,
 		},
-	]
+	];
 	for (const data of tests) {
-		const input = data.input
-		const output = data.output
-		const answer = triangle(input)
-		ns.tprint("-")
-		ns.tprint(output)
-		ns.tprint(answer)
-		ns.tprint("-")
+		const input = data.input;
+		const output = data.output;
+		const answer = triangle(input);
+		ns.tprint("-");
+		ns.tprint(output);
+		ns.tprint(answer);
+		ns.tprint("-");
 	}
 }

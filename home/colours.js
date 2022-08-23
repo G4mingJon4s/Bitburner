@@ -1,16 +1,16 @@
 /** @param {import('../NetscriptDefinitions').NS} ns */
 export async function main(ns) {
-	const length = 16
-	const char = "i"
-	const ansi = "\x1b[0;49;"
-	const line = (v, i) => ansi + i + "m" + " " + v
-	let out = "\n"
+	const length = 16;
+	const char = "i";
+	const ansi = "\x1b[0;49;";
+	const line = (v, i) => ansi + i + "m" + " " + v;
+	let out = "\n";
 
 	for (let c = 0; c <= 255; c++) {
-		if (c % 16 === 0 && c !== 0) out += "\n"
-		out += line(char, c)
+		if (c % 16 === 0 && c !== 0) out += "\n";
+		out += line(char, c);
 	}
-	ns.tprint(out)
+	ns.tprint(out);
 }
 
 export const COLOURS = {
@@ -45,4 +45,4 @@ export const COLOURS = {
 	whiteU: "\x1b[4;49;37m",
 	blackU: "\x1b[4;49;38m",
 	defaultU: "\x1b[4;49;94m",
-}
+};

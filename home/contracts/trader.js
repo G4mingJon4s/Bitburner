@@ -1,28 +1,28 @@
 export function traderI(prices) {
-	return maxProfit([1, prices])
+	return maxProfit([1, prices]);
 }
 
 export function traderII(prices) {
-	return maxProfit([Math.ceil(prices.length / 2), prices])
+	return maxProfit([Math.ceil(prices.length / 2), prices]);
 }
 
 export function traderIII(prices) {
-	return maxProfit([2, prices])
+	return maxProfit([2, prices]);
 }
 
 export function traderIV(input) {
-	return maxProfit(input)
+	return maxProfit(input);
 }
 
 function maxProfit(arrayData) {
-	let i, j, k
+	let i, j, k;
 
-	let maxTrades = arrayData[0]
-	let stockPrices = arrayData[1]
+	let maxTrades = arrayData[0];
+	let stockPrices = arrayData[1];
 
 	let highestProfit = new Array(maxTrades)
 		.fill()
-		.map(() => new Array(stockPrices.length).fill().map(() => 0))
+		.map(() => new Array(stockPrices.length).fill().map(() => 0));
 
 	for (i = 0; i < maxTrades; i++) {
 		for (j = 0; j < stockPrices.length; j++) {
@@ -35,67 +35,67 @@ function maxProfit(arrayData) {
 						highestProfit[i - 1][k],
 						highestProfit[i][k - 1],
 						highestProfit[i - 1][j - 1] + stockPrices[k] - stockPrices[j]
-					)
+					);
 				} else if (i > 0 && j > 0) {
 					highestProfit[i][k] = Math.max(
 						highestProfit[i][k],
 						highestProfit[i - 1][k],
 						highestProfit[i - 1][j - 1] + stockPrices[k] - stockPrices[j]
-					)
+					);
 				} else if (i > 0 && k > 0) {
 					highestProfit[i][k] = Math.max(
 						highestProfit[i][k],
 						highestProfit[i - 1][k],
 						highestProfit[i][k - 1],
 						stockPrices[k] - stockPrices[j]
-					)
+					);
 				} else if (j > 0 && k > 0) {
 					highestProfit[i][k] = Math.max(
 						highestProfit[i][k],
 						highestProfit[i][k - 1],
 						stockPrices[k] - stockPrices[j]
-					)
+					);
 				} else {
 					highestProfit[i][k] = Math.max(
 						highestProfit[i][k],
 						stockPrices[k] - stockPrices[j]
-					)
+					);
 				}
 			}
 		}
 	}
-	return highestProfit[maxTrades - 1][stockPrices.length - 1]
+	return highestProfit[maxTrades - 1][stockPrices.length - 1];
 }
 
 export async function main(ns) {
-	ns.tprint("Trader I:")
+	ns.tprint("Trader I:");
 	testCases1.forEach((test) => {
-		const input = test.input
-		const output = test.output
-		const answer = traderI(input)
-		ns.tprint(output === answer ? "SUCCESS" : "FAILED")
-	})
-	ns.tprint("Trader II:")
+		const input = test.input;
+		const output = test.output;
+		const answer = traderI(input);
+		ns.tprint(output === answer ? "SUCCESS" : "FAILED");
+	});
+	ns.tprint("Trader II:");
 	testCases2.forEach((test) => {
-		const input = test.input
-		const output = test.output
-		const answer = traderII(input)
-		ns.tprint(output === answer ? "SUCCESS" : "FAILED")
-	})
-	ns.tprint("Trader III:")
+		const input = test.input;
+		const output = test.output;
+		const answer = traderII(input);
+		ns.tprint(output === answer ? "SUCCESS" : "FAILED");
+	});
+	ns.tprint("Trader III:");
 	testCases3.forEach((test) => {
-		const input = test.input
-		const output = test.output
-		const answer = traderIII(input)
-		ns.tprint(output === answer ? "SUCCESS" : "FAILED")
-	})
-	ns.tprint("Trader IV:")
+		const input = test.input;
+		const output = test.output;
+		const answer = traderIII(input);
+		ns.tprint(output === answer ? "SUCCESS" : "FAILED");
+	});
+	ns.tprint("Trader IV:");
 	testCases4.forEach((test) => {
-		const input = test.input
-		const output = test.output
-		const answer = traderIV(input)
-		ns.tprint(output === answer ? "SUCCESS" : "FAILED")
-	})
+		const input = test.input;
+		const output = test.output;
+		const answer = traderIV(input);
+		ns.tprint(output === answer ? "SUCCESS" : "FAILED");
+	});
 }
 
 const testCases1 = [
@@ -158,7 +158,7 @@ const testCases1 = [
 		input: [116, 189, 61, 68, 187, 199, 145, 4, 176, 85, 129, 185, 51],
 		output: 181,
 	},
-]
+];
 
 const testCases2 = [
 	{
@@ -189,7 +189,7 @@ const testCases2 = [
 		output: 1570,
 	},
 	{ input: [157, 83, 145, 12, 161, 52], output: 211 },
-]
+];
 
 const testCases3 = [
 	{
@@ -270,7 +270,7 @@ const testCases3 = [
 		output: 389,
 	},
 	{ input: [128, 186, 112, 52, 134, 133, 165], output: 171 },
-]
+];
 
 const testCases4 = [
 	{
@@ -364,4 +364,4 @@ const testCases4 = [
 		input: [8, [119, 86, 61, 29]],
 		output: 0,
 	},
-]
+];

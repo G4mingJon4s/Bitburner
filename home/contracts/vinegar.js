@@ -14,8 +14,8 @@ export function distilVinegar(input) {
 
 function rightShift(array, shift) {
 	while (shift > 0) {
-		array.push(array.shift())
-		shift--
+		array.push(array.shift());
+		shift--;
 	}
-	return array
+	return array;
 }

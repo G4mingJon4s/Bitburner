@@ -1,10 +1,10 @@
 export function findFactor(input) {
-	let primes = []
+	let primes = [];
 	for (let i = 1; i <= input; i++) {
-		if (input % i !== 0) continue
-		if (isPrime(i)) primes.push(i)
+		if (input % i !== 0) continue;
+		if (isPrime(i)) primes.push(i);
 	}
-	return primes.at(-1)
+	return primes.at(-1);
 }
 
 /**
@@ -12,9 +12,9 @@ export function findFactor(input) {
  * @param {integer} num The integer to be checked.
  */
 export function isPrime(num) {
-	const root = Math.sqrt(num)
+	const root = Math.sqrt(num);
 	for (let i = 2; i <= root; i++) {
-		if (num % i === 0) return false
+		if (num % i === 0) return false;
 	}
-	return num > 1
+	return num > 1;
 }

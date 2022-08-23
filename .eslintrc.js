@@ -18,7 +18,7 @@ module.exports = {
 				endOfLine: "auto",
 				printWidth: 80,
 				trailingComma: "es5",
-				semi: false,
+				semi: true,
 				doubleQuote: true,
 				jsxSingleQuote: true,
 				singleQuote: false,
@@ -27,9 +27,10 @@ module.exports = {
 			},
 		],
 		eqeqeq: ["warn"],
+		camelcase: ["error", { properties: "always" }],
 		"no-fallthrough": ["warn"],
 		"no-unused-vars": ["warn"],
 		"no-constant-condition": ["off"],
 		"no-case-declarations": ["off"],
 	},
-}
+};
